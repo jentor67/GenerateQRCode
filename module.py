@@ -6,6 +6,8 @@ import os
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import qrcode
+from pdf2image import convert_from_path
+from pyzbar.pyzbar import decode
 
 class pdfTools():
     def __init__(self):
@@ -42,7 +44,7 @@ class pdfTools():
         doc.save(output_path)
         doc.close()
         
-        print("✅ Image added successfully!")
+        print("✅ QRCode added successfully!")
 
     def createQRCode(self, Value):
         img = qrcode.make(Value)
@@ -74,3 +76,31 @@ class pdfTools():
         doc.close()
 
         return PageNumber
+
+    
+    def verifyQRCode(self, File, output_path):
+        # get the name of the output file
+        file_name_with_ext = os.path.basename(File)
+        pdf_path = output_path + "/" + file_name_with_ext
+        print(pdf_path)
+
+        # Convert PDF pages to images
+        pages = convert_from_path(pdf_path, dpi=300)
+        results = []
+    
+        for page_number, page in enumerate(pages, start=1):
+            # Convert page to image
+            img = page.convert('RGB')
+    
+            # Decode QR codes in the image
+            decoded_objects = decode(img)
+    
+            for obj in decoded_objects:
+                data = obj.data.decode('utf-8')
+                results.append({
+                    'page': page_number,
+                    'data': data,
+                    'type': obj.type
+                })
+    
+        return results

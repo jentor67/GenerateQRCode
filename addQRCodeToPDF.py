@@ -24,7 +24,12 @@ for File in Files:
     pdfM.createQRCode(page)
 
     # add image to pdf
-    pdfM.addImage(File,output_path)
+    pdfM.addImage(File, output_path)
+
+    # verfity QRcode
+    valueQR = pdfM.verifyQRCode(File, output_path)
+    print(valueQR)
+    print(" ")
     
 
 
